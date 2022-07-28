@@ -20,12 +20,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
 
 import javax.sql.DataSource;
 import java.util.Arrays;
 
 @EnableBatchProcessing
 @SpringBootApplication
+@Import(ChunksConfiguration.class)
 public class HelloWorldApplication {
 
 	@Autowired
@@ -33,6 +35,9 @@ public class HelloWorldApplication {
 
 	@Autowired
 	private StepBuilderFactory stepBuilderFactory;
+
+	@Autowired
+	private ApplicationContext ctx;
 
 	@Bean
 	public CompositeJobParametersValidator validator() {
@@ -67,11 +72,18 @@ public class HelloWorldApplication {
 				.build();
 	}
 
-	@Bean
+	/*@Bean
 	public Job job() {
 		return this.jobBuilderFactory.get("job")
 				.start(step1())
 				.validator(validator())
+				.build();
+	}*/
+
+	@Bean
+	public Job chunkBasedJob() {
+		return this.jobBuilderFactory.get("chunkBasedJob")
+				.start(ctx.getBean("chunkStep", Step.class))
 				.build();
 	}
 
@@ -102,7 +114,7 @@ public class HelloWorldApplication {
 			@Value("#{jobParameters['fileName']}") String fileName) {
 		return (contribution, chunkContext) -> {
 			System.out.println(
-					String.format("Hello, %s!", name));
+					String.format("Hola, %s!", name));
 			System.out.println(
 					String.format("fileName = %s", fileName));return RepeatStatus.FINISHED;
 		};
