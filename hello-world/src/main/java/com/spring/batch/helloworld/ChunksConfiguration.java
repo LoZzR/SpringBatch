@@ -1,5 +1,6 @@
 package com.spring.batch.helloworld;
 
+import com.spring.batch.helloworld.utils.RandomChunkSizePolicy;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.item.ItemWriter;
@@ -47,6 +48,11 @@ public class ChunksConfiguration {
                         new TimeoutTerminationPolicy(1),
                         new SimpleCompletionPolicy(10)});
         return policy;
+    }
+
+    @Bean
+    public CompletionPolicy randomCompletionPolicy() {
+        return new RandomChunkSizePolicy();
     }
 
     @Bean
