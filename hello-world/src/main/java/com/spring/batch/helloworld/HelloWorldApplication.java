@@ -27,7 +27,7 @@ import java.util.Arrays;
 
 @EnableBatchProcessing
 @SpringBootApplication
-@Import(ChunksConfiguration.class)
+@Import({ChunksConfiguration.class, StepListenerConfiguration.class})
 public class HelloWorldApplication {
 
 	@Autowired
@@ -75,15 +75,25 @@ public class HelloWorldApplication {
 	/*@Bean
 	public Job job() {
 		return this.jobBuilderFactory.get("job")
-				.start(step1())
-				.validator(validator())
+				.start(step())
+				//.validator(validator())
+				.build();
+	}*/
+
+	/*@Bean
+	public Job chunkBasedJob() {
+		return this.jobBuilderFactory.get("chunkBasedJob")
+				.start(ctx.getBean("chunkStepComposite", Step.class))
 				.build();
 	}*/
 
 	@Bean
-	public Job chunkBasedJob() {
-		return this.jobBuilderFactory.get("chunkBasedJob")
-				.start(ctx.getBean("chunkStep", Step.class))
+	public Job job() {
+		return this.jobBuilderFactory.get("conditionalJob")
+				.start(ctx.getBean("firstStep", Step.class))
+				.on("FAILED").to(ctx.getBean("failureStep", Step.class))
+				.from(ctx.getBean("firstStep", Step.class)).on("*").to(ctx.getBean("successStep", Step.class))
+				.end()
 				.build();
 	}
 
