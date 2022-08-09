@@ -1,7 +1,5 @@
 spring:
   batch:
-    job:
-      enabled: false
     jdbc:
       initialize-schema: always
   datasource:
