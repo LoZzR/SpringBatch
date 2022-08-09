@@ -41,5 +41,6 @@
     <modules>
         <module>hello-world</module>
         <module>run-job</module>
+        <module>item-reader</module>
     </modules>
 </project>
