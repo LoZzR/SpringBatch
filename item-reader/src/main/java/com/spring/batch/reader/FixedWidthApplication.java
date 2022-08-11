@@ -1,6 +1,7 @@
 package com.spring.batch.reader;
 
 import com.spring.batch.reader.entities.Customer;
+import com.spring.batch.reader.loggers.CustomerItemListener;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -58,12 +59,22 @@ public class FixedWidthApplication {
             }
         };
     }
+
+    @Bean
+    public CustomerItemListener customerListener() {
+        return new CustomerItemListener ();
+    }
+
     @Bean
     public Step copyFileStep() {
         return this.stepBuilderFactory.get("copyFileStep")
                 .<Customer, Customer>chunk(10)
                 .reader(customerItemReader())
                 .writer(itemWriter())
+                .faultTolerant()
+                .skipLimit(100)
+                .skip(Exception.class)
+                .listener(customerListener())
                 .build();
     }
     @Bean
